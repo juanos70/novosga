@@ -308,7 +308,7 @@ class AtendimentoService extends MetaModelService
     
     
     public function chamar(Atendimento $atendimento, Usuario $usuario, $local) {
-        AppConfig::getInstance()->hook("attending.pre-call", array($atendimento, $usuario, $local));
+        AppConfig::getInstance()->hook("attending.pre-call", array($atendimento, $usuario));
         
         $atendimento->setUsuario($usuario);
         $atendimento->setLocal($local);
@@ -353,25 +353,10 @@ class AtendimentoService extends MetaModelService
             AtendimentoService::ATENDIMENTO_INICIADO,
             AtendimentoService::ATENDIMENTO_ENCERRADO
         );
-        try {
-            return $this->em
-                ->createQuery("SELECT e FROM Novosga\Model\Atendimento e WHERE e.usuario = :usuario AND e.status IN (:status)")
-                ->setParameter('usuario', $usuario)
-                ->setParameter('status', $status)
-                ->getOneOrNullResult();
-        } catch (\Doctrine\ORM\NonUniqueResultException $e) {
-            /* 
-             * caso tenha mais de um atendimento preso ao usuario,
-             * libera os atendimentos e retorna null para o atendente chamar de novo. 
-             * BUG #213
-             */
-            $this->em
-                ->createQuery('UPDATE Novosga\Model\Atendimento e SET e.status = 1, e.usuario = NULL WHERE e.usuario = :usuario AND e.status IN (:status)')
-                ->setParameter('usuario', $usuario)
-                ->setParameter('status', $status)
-                ->execute();
-            return null;
-        }
+        $query = $this->em->createQuery("SELECT e FROM Novosga\Model\Atendimento e WHERE e.usuario = :usuario AND e.status IN (:status)");
+        $query->setParameter('usuario', $usuario);
+        $query->setParameter('status', $status);
+        return $query->getOneOrNullResult();
     }
     
     /**
@@ -436,6 +421,8 @@ class AtendimentoService extends MetaModelService
             $this->em->flush();
         }
         
+        AppConfig::getInstance()->hook("attending.pre-create", array($su, $prioridade, $usuario));
+        
         $numeroSenha = $contador->getTotal() + 1;
         $contador->setTotal($numeroSenha);
         
@@ -448,8 +435,6 @@ class AtendimentoService extends MetaModelService
         $atendimento->setNomeCliente($nomeCliente);
         $atendimento->setDocumentoCliente($documentoCliente);
         $atendimento->setSiglaSenha($su->getSigla());
-        
-        AppConfig::getInstance()->hook("attending.pre-create", array($atendimento));
 
         try {
             $attempts = 5;
@@ -567,7 +552,7 @@ class AtendimentoService extends MetaModelService
      * @return boolean
      */
     public function transferir(Atendimento $atendimento, Unidade $unidade, $novoServico, $novaPrioridade) {
-        AppConfig::getInstance()->hook("attending.pre-transfer", $atendimento, $unidade, $novoServico, $novaPrioridade);
+        AppConfig::getInstance()->hook("attending.pre-transfer", $atendimento);
         
         // transfere apenas se a data fim for nula (nao finalizados)
         $success = $this->em->createQuery('
@@ -589,8 +574,7 @@ class AtendimentoService extends MetaModelService
         ;
         
         if ($success) {
-            $this->em->refresh($atendimento);
-            AppConfig::getInstance()->hook("attending.transfer", array($atendimento));
+            AppConfig::getInstance()->hook("attending.transfer", array($atendimento, $novoServico, $novaPrioridade));
         }
         
         return $success;
@@ -626,7 +610,6 @@ class AtendimentoService extends MetaModelService
         ;
         
         if ($success) {
-            $this->em->refresh($atendimento);
             AppConfig::getInstance()->hook("attending.cancel", $atendimento);
         }
         
@@ -664,7 +647,6 @@ class AtendimentoService extends MetaModelService
         ;
         
         if ($success) {
-            $this->em->refresh($atendimento);
             AppConfig::getInstance()->hook("attending.reactivate", $atendimento);
         }
         

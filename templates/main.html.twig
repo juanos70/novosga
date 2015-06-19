@@ -1,5 +1,3 @@
-{% use 'blocks.html.twig' %}
-
 <!DOCTYPE html>
 <html lang="{{ lang }}">
     <head>
@@ -26,7 +24,8 @@
             SGA.invalidSession = '{% trans %}Sessão Inválida. Possivelmente o seu usuário está sendo utilizado em outra máquina.{% endtrans %}';
             SGA.inactiveSession = '{% trans %}Sessão expirada. Favor efetuar o login novamente.{% endtrans %}';
         </script>
-        {{ block('head') }}
+        {% block head %}
+        {% endblock %}
     </head>
     <body>
         <nav class="navbar navbar-default" role="navigation">
@@ -65,7 +64,6 @@
                         </li>
                     </ul>
                     {% endif %}
-                    {% if modulosGlobal|length %}
                     <ul class="nav navbar-nav">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans %}Global{% endtrans %} <b class="caret"></b></a>
@@ -76,7 +74,6 @@
                             </ul>
                         </li>
                     </ul>
-                    {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ usuario.nome }} <b class="caret"></b></a>

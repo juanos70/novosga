@@ -22,9 +22,11 @@ class InstallMiddleware extends \Slim\Middleware {
         $uri = $req->getResourceUri();
         $installed = NOVOSGA_INSTALLED;
         if (!$installed && !self::isInstallPage($uri)) {
-            $this->app->response()->redirect($this->app->urlFor('install'));
+            $res = $this->app->response();
+            $res->redirect($req->getRootUri() . '/install');
         } else if ($installed && self::isInstallPage($uri)) {
-            $this->app->response()->redirect($this->app->urlFor('login'));
+            $res = $this->app->response();
+            $res->redirect($req->getRootUri() . '/login');
         } else {
             $this->next->call();
         }

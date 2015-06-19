@@ -8,8 +8,8 @@ namespace Novosga\Util;
  */
 class I18n {
     
-    const DEFAULT_LANG = 'pt';
-    const DEFAULT_LOCALE = 'pt_BR';
+    const DEFAULT_LANG = 'es';
+    const DEFAULT_LOCALE = 'es_ES';
     const DEFAULT_DOMAIN = 'default';
     
     private static $lang;

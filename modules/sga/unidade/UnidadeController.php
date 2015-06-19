@@ -1,17 +1,15 @@
 <?php
 namespace modules\sga\unidade;
-
 use Exception;
 use Novosga\Service\AtendimentoService;
 use Novosga\Context;
 use Novosga\Controller\ModuleController;
 use Novosga\Http\JsonResponse;
 use Novosga\Service\ServicoService;
-
 /**
  * UnidadeController
  * 
- * Controlador do mÃ³dulo de configuraÃ§Ã£o da unidade
+ * Controlador do módulo de configuração da unidade
  *
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
@@ -38,7 +36,6 @@ class UnidadeController extends ModuleController {
             
             // todos servicos da unidade
             $servicos = $service->servicosUnidade($unidade);
-
             $this->app()->view()->set('servicos', $servicos);
             $this->app()->view()->set('locais', $locais);
         }
@@ -106,7 +103,6 @@ class UnidadeController extends ModuleController {
             
             $service = new ServicoService($this->em());
             $su = $service->servicoUnidade($context->getUser()->getUnidade(), $id);
-
             $sigla = $context->request()->post('sigla');
             $peso = (int) $context->request()->post('peso');
             $peso = max(1, $peso);

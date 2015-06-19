@@ -3,27 +3,21 @@
  * Novo SGA API
  */
 require_once  '../../bootstrap.php';
-
 $app = new Slim\Slim(array(
     'debug' => false
 ));
-
 $db = \Novosga\Config\DatabaseConfig::getInstance();
 $em = $db->createEntityManager();
 $server = new \Novosga\Api\OAuth2Server($em);
-
 $api = new \Novosga\Api\ApiV1($em);
-
 $app->error(function(Exception $e) use ($app) {
     echo json_encode(array('error' => $e->getMessage(), 'code' => $e->getCode()));
 });
-
 $app->notFound(function() use ($app) {
     echo json_encode(array('error' => 'Not found', 'code' => '404'));
 });
-
 /**
- * Autentica o usu√°rio retornando o token de acesso.
+ * Autentica o usu·rio retornando o token de acesso.
  * 
  * POST /token
  * {
@@ -44,17 +38,15 @@ $app->notFound(function() use ($app) {
 $app->post('/token', function() use ($server) {
     $server->handleTokenRequest(OAuth2\Request::createFromGlobals())->send();
 });
-
 /**
- * Verifica o acesso, retornando se o token informado ainda est√° valido
+ * Verifica o acesso, retornando se o token informado ainda est· valido
  */
 $app->get('/check', function() use ($server) {
     $server->checkAccess();
     echo json_encode(array('success' => true));
 });
-
 /**
- * Retorna todas as unidades dispon√≠veis
+ * Retorna todas as unidades disponÌveis
  * 
  * GET /unidades
  * < 200
@@ -62,16 +54,15 @@ $app->get('/check', function() use ($server) {
  *   {
  *     id: 1,
  *     codigo: "1",
- *     nome: "Unidade Padr√£o"
+ *     nome: "Unidade Padr„o"
  *   }
  * ]
  */
 $app->get('/unidades', function() use ($api) {
     echo json_encode($api->unidades());
 });
-
 /**
- * Retorna todas as prioridades dispon√≠veis
+ * Retorna todas as prioridades disponÌveis
  * 
  * GET /prioridades
  * < 200
@@ -89,20 +80,19 @@ $app->get('/unidades', function() use ($api) {
 $app->get('/prioridades', function() use ($api) {
     echo json_encode($api->prioridades());
 });
-
 /**
- * Retorna os servi√ßos globais ou habilitados por unidade (quando a mesma for informada)
+ * Retorna os serviÁos globais ou habilitados por unidade (quando a mesma for informada)
  * 
  * GET /servicos
  * < 200
  * [ 
  *   { 
  *     id: 1, 
- *     nome: "Servi√ßo 1"
+ *     nome: "ServiÁo 1"
  *   },
  *   { 
  *     id: 2, 
- *     nome: "Servi√ßo 2"
+ *     nome: "ServiÁo 2"
  *   }
  * ]
  * 
@@ -112,18 +102,17 @@ $app->get('/prioridades', function() use ($api) {
  *   { 
  *     id: 1, 
  *     sigla: "A",
- *     nome: "Servi√ßo 1",
- *     local: "Guich√™"
+ *     nome: "ServiÁo 1",
+ *     local: "GuichÍ"
  *   }
  * ]
  */
 $app->get('/servicos(/:unidade)', function($unidade = 0) use ($api) {
     echo json_encode($api->servicos($unidade));
 });
-
 /**
- * Retorna a senhas a serem chamadas pelo painel da unidade. Uma lista de servi√ßos
- * deve ser informada na query string (separados por v√≠rgula)
+ * Retorna a senhas a serem chamadas pelo painel da unidade. Uma lista de serviÁos
+ * deve ser informada na query string (separados por vÌrgula)
  * 
  * GET /painel/1?servicos=1
  * < 200
@@ -133,7 +122,7 @@ $app->get('/servicos(/:unidade)', function($unidade = 0) use ($api) {
  *     sigla: "A",
  *     mensagem: "Convencional",
  *     numero: 1,
- *     local: "Guich√™",
+ *     local: "GuichÍ",
  *     numeroLocal: 99,
  *     peso: 0,
  *     length: 3
@@ -151,9 +140,8 @@ $app->get('/painel(/:unidade)', function($unidade = 0) use ($app, $api) {
     });
     echo json_encode($api->painel($unidade, $servicos));
 });
-
 /**
- * Retorna a fila de atendimento do usu√°rio na unidade informada.
+ * Retorna a fila de atendimento do usu·rio na unidade informada.
  * 
  * GET /fila/usuario/1/1
  * < 200
@@ -161,7 +149,7 @@ $app->get('/painel(/:unidade)', function($unidade = 0) use ($app, $api) {
  *   {
  *     id: 7,
  *     senha: "A002",
- *     servico: "Servi√ßo 1",
+ *     servico: "ServiÁo 1",
  *     prioridade: true,
  *     nomePrioridade: "Gestante",
  *     chegada: "2014-04-23 08:41:00",
@@ -185,10 +173,9 @@ $app->get('/fila/usuario/:unidade/:usuario', function($unidade, $usuario) use ($
     }
     echo json_encode($arr);
 });
-
 /**
- * Retorna a fila de atendimento para os servicos da unidade. Uma lista de servi√ßos
- * deve ser informada na query string (separados por v√≠rgula)
+ * Retorna a fila de atendimento para os servicos da unidade. Uma lista de serviÁos
+ * deve ser informada na query string (separados por vÌrgula)
  * 
  * GET /fila/servicos/1?servicos=1
  * < 200
@@ -196,7 +183,7 @@ $app->get('/fila/usuario/:unidade/:usuario', function($unidade, $usuario) use ($
  *   {
  *     id: 7,
  *     senha: "A002",
- *     servico: "Servi√ßo 1",
+ *     servico: "ServiÁo 1",
  *     prioridade: true,
  *     nomePrioridade: "Gestante",
  *     chegada: "2014-04-23 08:41:00",
@@ -228,14 +215,13 @@ $app->get('/fila/servicos/:unidade', function($unidade) use ($app, $api) {
     }
     echo json_encode($arr);
 });
-
 /**
- * Distribui uma nova senha para atendimento. Requer autentica√ß√£o, um access_token v√°lido e ativo.
+ * Distribui uma nova senha para atendimento. Requer autenticaÁ„o, um access_token v·lido e ativo.
  * 
  * POST /distribui
  * form data:
  *   int unidade (id da unidade do atendimento)
- *   int servico (id do servi√ßo do atendimento)
+ *   int servico (id do serviÁo do atendimento)
  *   int prioridade (id da prioridade do atendimento, 1 para sem prioridade)
  *   string nome_cliente (nome do cliente a ser atendido)
  *   string doc_cliente (documento do cliente a ser atendido)
@@ -253,24 +239,21 @@ $app->post('/distribui', function() use ($app, $api, $server) {
     // distribuindo nova senha
     echo json_encode($api->distribui($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente));
 });
-
 /**
- * Visualiza um atendimento que ainda n√£o foi arquivado
+ * Visualiza um atendimento que ainda n„o foi arquivado
  * GET /atendimento/1
  */
 $app->get('/atendimento/:id', function($id) use ($app, $api, $server) {
     $server->checkAccess();
     echo json_encode($api->atendimento($id));
 });
-
 /**
- * Visualiza um atendimento que ainda n√£o foi arquivado
+ * Visualiza um atendimento que ainda n„o foi arquivado
  */
 $app->get('/atendimento/:id/info', function($id) use ($app, $api, $server) {
     $server->checkAccess();
     echo json_encode($api->atendimentoInfo($id));
 });
-
 /*
  * Check extra route from configuration file
  */
@@ -281,14 +264,11 @@ foreach ($config->routes() as $pattern => $callable) {
     }
     $app->any("/extra{$pattern}", $callable);
 }
-
 // response
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
 header('Access-Control-Allow-Credentials: true');
 header("Access-Control-Max-Age: 1000");
 header("Access-Control-Allow-Headers: origin, x-requested-with, content-type");
-
 $app->contentType('application/json');
 $app->run();
